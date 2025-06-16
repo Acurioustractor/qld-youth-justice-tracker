@@ -95,7 +95,7 @@ export async function GET(request: NextRequest) {
         averages
       },
       metadata: {
-        facilities: [...new Set(data?.map(s => s.facility_name).filter(Boolean) || [])],
+        facilities: Array.from(new Set(data?.map(s => s.facility_name).filter(Boolean) || [])),
         dateRange: {
           start: data?.[data.length - 1]?.date,
           end: data?.[0]?.date

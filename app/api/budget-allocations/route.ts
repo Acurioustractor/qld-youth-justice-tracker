@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
       totals,
       metadata: {
         count: data?.length || 0,
-        fiscal_years: [...new Set(data?.map(a => a.fiscal_year) || [])]
+        fiscal_years: Array.from(new Set(data?.map(a => a.fiscal_year) || []))
       }
     })
   } catch (error) {

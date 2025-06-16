@@ -84,7 +84,7 @@ export async function GET(request: NextRequest) {
       },
       metadata: {
         categories: Object.keys(costsByCategory),
-        stakeholderTypes: [...new Set(data?.map(c => c.stakeholder_type).filter(Boolean) || [])]
+        stakeholderTypes: Array.from(new Set(data?.map(c => c.stakeholder_type).filter(Boolean) || []))
       }
     })
   } catch (error) {
