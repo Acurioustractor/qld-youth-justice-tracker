@@ -1,5 +1,7 @@
 # Queensland Youth Justice Tracker
 
+> Last deployed: June 16, 2025
+
 A transparent, real-time dashboard tracking Queensland's youth justice spending and outcomes. This project aims to bring transparency to public spending and highlight the disparity between detention costs ($857/day) and community programs ($41/day).
 
 ## Live Dashboard
