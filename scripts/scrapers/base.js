@@ -1,13 +1,21 @@
 const cheerio = require('cheerio')
 const { createClient } = require('@supabase/supabase-js')
-require('dotenv').config()
+const path = require('path')
+require('dotenv').config({ path: path.join(__dirname, '../../.env.local') })
 
 class BaseScraper {
   constructor() {
-    this.supabase = createClient(
-      process.env.SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_KEY
-    )
+    // Use NEXT_PUBLIC variables if available, otherwise fallback
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
+    const supabaseKey = process.env.SUPABASE_SERVICE_KEY
+    
+    if (!supabaseUrl || !supabaseKey) {
+      console.error('Missing Supabase credentials. Please check your .env.local file')
+      console.error('Required: NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_KEY')
+      process.exit(1)
+    }
+    
+    this.supabase = createClient(supabaseUrl, supabaseKey)
   }
 
   async fetchPage(url) {

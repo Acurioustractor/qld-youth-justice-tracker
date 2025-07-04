@@ -82,3 +82,19 @@ next-env.d.ts
 # Test files
 test-*.js
 test-*.py
+
+# Cache
+.cache/
+
+# Exports
+exports/
+raw-data-export-*.json
+scraped-content-*.txt
+
+# Temporary SQL files
+*.sql
+!supabase/migrations/*.sql
+!scripts/*.sql
+
+# Supabase temp files
+supabase/.temp/

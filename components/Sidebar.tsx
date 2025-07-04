@@ -5,10 +5,20 @@ import { usePathname } from 'next/navigation'
 
 const navigation = [
   { name: 'Dashboard', href: '/' },
-  { name: 'Spending', href: '/spending' },
+  { name: 'Public Dashboard', href: '/public-dashboard' },
+  { name: 'Accountability Dashboard', href: '/accountability-dashboard' },
+  { name: 'Data Visualization', href: '/visualization' },
+  { name: 'Real-Time Alerts', href: '/alerts' },
+  { name: 'Data Sources', href: '/data-sources' },
+  { name: 'Monitoring', href: '/monitoring' },
+  { name: 'Debug Data', href: '/debug-data' },
+  { name: 'Raw Data Download', href: '/raw-data' },
+  { name: 'Data Explorer', href: '/data-explorer' },
+  { name: 'Live Demo', href: '/live-demo' },
+  { name: 'Visualizations', href: '/visualizations' },
+  { name: 'Spending Analysis', href: '/spending' },
   { name: 'Youth Statistics', href: '/youth-statistics' },
   { name: 'Transparency Hub', href: '/transparency' },
-  { name: 'Coalition & Community', href: '/community' },
   { name: 'Reports & Analysis', href: '/reports' },
 ]
 

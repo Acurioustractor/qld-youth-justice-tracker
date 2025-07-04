@@ -11,7 +11,7 @@ class BudgetScraper extends BaseScraper {
     ]
   }
 
-  async scrapeBudgetPapers(year = '2024-25') {
+  async scrapeBudgetPapers(year = '2025-26') {
     console.log(`Scraping budget papers for ${year}`)
     
     const results = []
@@ -118,7 +118,7 @@ class BudgetScraper extends BaseScraper {
         const category = this.determineCategory(row)
         
         allocations.push({
-          fiscal_year: '2024-25',
+          fiscal_year: '2025-26',
           department: 'Department of Youth Justice',
           program: this.extractProgramName(row),
           category: category,
