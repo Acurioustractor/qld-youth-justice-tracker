@@ -109,7 +109,17 @@ export default function DataExplorerPage() {
         .from(activeTabData.table)
         .select('*', { count: 'exact' })
         .range((page - 1) * pageSize, page * pageSize - 1)
-        .order('created_at', { ascending: false })
+      
+      // Use appropriate ordering column based on table
+      if (activeTabData.table === 'court_statistics') {
+        query = query.order('report_period', { ascending: false })
+      } else if (activeTabData.table === 'youth_statistics') {
+        query = query.order('date', { ascending: false })
+      } else if (activeTabData.table === 'budget_allocations') {
+        query = query.order('fiscal_year', { ascending: false })
+      } else {
+        query = query.order('created_at', { ascending: false })
+      }
 
       // Apply filters
       Object.entries(filters).forEach(([field, value]) => {
