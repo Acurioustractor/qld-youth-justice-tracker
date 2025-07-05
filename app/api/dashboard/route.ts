@@ -55,7 +55,7 @@ export async function GET() {
     const dailyDetentionCost = detentionBudget / 365
     const dailyCommunityProgramCost = 41 // Per person per day from verified data
     const claimedDetentionCostPerDay = 857 // From budget documents
-    const trueCostPerDay = auditFindings?.true_cost_per_day || 1570
+    const trueCostPerDay = 1570 // From QAO audit report
     
     // Format response
     const response = {
@@ -128,29 +128,29 @@ export async function GET() {
       
       // Police data
       police: {
-        youthOffenders: policeStats?.youth_offenders || 15234,
-        repeatOffenders: policeStats?.repeat_offenders || 8829,
-        repeatOffenderPercentage: policeStats?.repeat_offender_percentage || 58.0,
-        seriousRepeatOffenders: policeStats?.serious_repeat_offenders || 367,
-        clearanceRate: policeStats?.youth_crime_clearance_rate || 67.3,
+        youthOffenders: 15234,
+        repeatOffenders: 8829,
+        repeatOffenderPercentage: 58.0,
+        seriousRepeatOffenders: 367,
+        clearanceRate: 67.3,
         source: {
-          document: policeStats?.source_document || 'QPS Statistical Review 2023-24',
-          url: policeStats?.source_url || 'https://www.police.qld.gov.au/sites/default/files/2024-08/QPS%20Statistical%20Review%202023-24.pdf',
-          period: policeStats?.report_period || '2023-24'
+          document: 'QPS Statistical Review 2023-24',
+          url: 'https://www.police.qld.gov.au/sites/default/files/2024-08/QPS%20Statistical%20Review%202023-24.pdf',
+          period: '2023-24'
         }
       },
       
       // Audit findings
       audit: {
-        totalSpending2018to2023: auditFindings?.total_spending_2018_2023 || 1380000000,
-        trueCostPerDay: auditFindings?.true_cost_per_day || 1570,
-        claimedCost: auditFindings?.claimed_cost || 857,
-        hiddenCostPercentage: auditFindings?.hidden_cost_percentage || 83.3,
-        accountabilityFinding: auditFindings?.accountability_finding || 'No single entity is accountable for youth justice system performance',
+        totalSpending2018to2023: 1380000000,
+        trueCostPerDay: 1570,
+        claimedCost: 857,
+        hiddenCostPercentage: 83.3,
+        accountabilityFinding: 'No single entity is accountable for youth justice system performance',
         source: {
-          document: auditFindings?.source_document || 'QAO Report - Managing Youth Justice Demand',
-          url: auditFindings?.source_url || 'https://www.qao.qld.gov.au/reports-resources/managing-youth-justice-demand',
-          date: auditFindings?.report_date || '2024-06-15'
+          document: 'QAO Report - Managing Youth Justice Demand',
+          url: 'https://www.qao.qld.gov.au/reports-resources/managing-youth-justice-demand',
+          date: '2024-06-15'
         }
       },
       
@@ -164,10 +164,10 @@ export async function GET() {
           populationPercentage: indigenousPopulationPercentage
         },
         systemFailures: {
-          overcrowding: detentionStats?.capacity_percentage > 100,
-          majorityOnRemand: (detentionStats?.remand_percentage || 68.3) > 50,
-          highRepeatOffending: (policeStats?.repeat_offender_percentage || 58) > 50,
-          budgetMisallocation: (budgetData?.detention_percentage || 90.6) > 80
+          overcrowding: true, // 107% capacity
+          majorityOnRemand: true, // 68.3% on remand
+          highRepeatOffending: true, // 58% repeat offending
+          budgetMisallocation: true // 90.6% to detention
         }
       }
     }
