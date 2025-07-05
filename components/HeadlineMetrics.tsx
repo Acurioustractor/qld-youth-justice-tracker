@@ -120,10 +120,14 @@ export function HeadlineMetrics({ data, onSectionClick, mode }: HeadlineMetricsP
             whileHover={{ scale: 1.05, y: -5 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => onSectionClick(metric.clickSection)}
-            className={`cursor-pointer bg-gradient-to-br ${metric.bgColor} backdrop-blur-lg rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-200 hover:border-gray-300 shadow-lg hover:shadow-xl transition-all`}
+            className={`cursor-pointer bg-gradient-to-br ${metric.bgColor} backdrop-blur-lg rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-200 hover:border-gray-300 shadow-lg hover:shadow-xl transition-all overflow-hidden relative`}
           >
             <div className="space-y-2">
-              <h3 className={`text-3xl sm:text-4xl md:text-5xl font-bold ${metric.color}`}>
+              <h3 className={`${
+                metric.id === 'money-burned' 
+                  ? 'text-2xl sm:text-3xl md:text-4xl' 
+                  : 'text-3xl sm:text-4xl md:text-5xl'
+              } font-bold ${metric.color} break-all`}>
                 <CountUp
                   start={0}
                   end={metric.value}
