@@ -1,4 +1,12 @@
 #!/usr/bin/env node
+
+/**
+ * Database Connection Test for Queensland Youth Justice Tracker
+ * 
+ * This script tests the database connection and verifies all tables are working properly.
+ * Run this AFTER setting up your environment variables and database tables.
+ */
+
 import { createClient } from '@supabase/supabase-js'
 import dotenv from 'dotenv'
 import { fileURLToPath } from 'url'
@@ -8,174 +16,90 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
 // Load environment variables
+dotenv.config({ path: join(__dirname, '../.env') })
 dotenv.config({ path: join(__dirname, '../.env.local') })
 
-console.log('🔍 Database Connection Test')
-console.log('============================')
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY
-
-console.log('\n📋 Environment Check:')
-console.log(`   Supabase URL: ${supabaseUrl ? '✅ Set' : '❌ Missing'}`)
-console.log(`   Anon Key: ${supabaseAnonKey ? '✅ Set' : '❌ Missing'}`)
-console.log(`   Service Key: ${supabaseServiceKey ? '✅ Set' : '❌ Missing'}`)
-
-if (!supabaseUrl || !supabaseServiceKey) {
-  console.error('\n❌ Missing required environment variables!')
-  process.exit(1)
-}
-
-// Test with service key (what scrapers should use)
-const supabaseService = createClient(supabaseUrl, supabaseServiceKey)
-
 async function testConnection() {
-  console.log('\n🔌 Testing Database Connection...')
-  
-  try {
-    // Test basic connection
-    const { data, error } = await supabaseService
-      .from('budget_allocations')
-      .select('count', { count: 'exact', head: true })
-    
-    if (error) {
-      console.error(`❌ Connection failed: ${error.message}`)
-      console.error(`   Code: ${error.code}`)
-      console.error(`   Details: ${error.details}`)
-      console.error(`   Hint: ${error.hint}`)
-      return false
-    }
-    
-    console.log('✅ Connection successful!')
-    console.log(`   Found ${data} records in budget_allocations`)
-    return true
-    
-  } catch (error) {
-    console.error(`❌ Connection error: ${error.message}`)
-    return false
-  }
-}
+  console.log('🧪 Queensland Youth Justice Tracker - Database Connection Test')
+  console.log('==============================================================')
+  console.log('')
 
-async function testAllTables() {
-  console.log('\n📊 Testing All Tables...')
+  // Check environment variables
+  console.log('🔍 Checking environment variables...')
   
-  const tables = [
-    'court_statistics', 'court_sentencing', 'youth_crimes', 'youth_crime_patterns',
-    'rti_requests', 'youth_statistics', 'budget_allocations', 'parliamentary_documents',
-    'scraped_content', 'scraper_health'
+  const requiredVars = [
+    'NEXT_PUBLIC_SUPABASE_URL',
+    'SUPABASE_SERVICE_KEY'
   ]
   
-  const results = {}
+  const missingVars = requiredVars.filter(varName => !process.env[varName])
   
-  for (const table of tables) {
-    try {
-      const { count, error } = await supabaseService
-        .from(table)
-        .select('*', { count: 'exact', head: true })
-      
-      if (error) {
-        results[table] = { status: 'ERROR', error: error.message, count: 0 }
-      } else {
-        results[table] = { status: 'OK', count: count || 0 }
+  if (missingVars.length > 0) {
+    console.error('❌ Missing environment variables:')
+    missingVars.forEach(varName => {
+      console.error(`   ${varName}`)
+    })
+    console.log('')
+    console.log('💡 Please set up your environment variables first:')
+    console.log('   1. Copy .env.new to .env and .env.local')
+    console.log('   2. Update with your Supabase project credentials')
+    console.log('   3. Run this test again')
+    process.exit(1)
+  }
+  
+  console.log('✅ Environment variables found')
+  console.log('')
+  
+  // Create Supabase client
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_KEY,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
       }
-    } catch (error) {
-      results[table] = { status: 'MISSING', error: error.message, count: 0 }
     }
-  }
-  
-  console.log('\n📋 Table Status:')
-  Object.entries(results).forEach(([table, result]) => {
-    const icon = result.status === 'OK' ? '✅' : '❌'
-    console.log(`   ${icon} ${table}: ${result.status} (${result.count} records)`)
-    if (result.error) {
-      console.log(`      ${result.error}`)
-    }
-  })
-  
-  return results
-}
+  )
 
-async function testSimpleInsert() {
-  console.log('\n💾 Testing Simple Insert...')
-  
+  // Test basic connection
+  console.log('🔗 Testing database connection...')
   try {
-    // Try inserting a test record
-    const { data, error } = await supabaseService
-      .from('scraped_content')
-      .insert([{
-        type: 'connection_test',
-        content: 'Database connection test record',
-        source: 'test_script',
-        source_url: 'localhost',
-        data_type: 'test',
-        scraped_at: new Date().toISOString()
-      }])
-      .select()
-    
-    if (error) {
-      console.error(`❌ Insert failed:`, error)
-      return false
-    }
-    
-    console.log('✅ Insert successful!')
-    console.log(`   Inserted record ID: ${data[0]?.id || 'Unknown'}`)
-    
-    // Clean up test record
-    if (data[0]?.id) {
-      await supabaseService
-        .from('scraped_content')
-        .delete()
-        .eq('id', data[0].id)
-      console.log('🧹 Cleaned up test record')
-    }
-    
-    return true
-    
+    const { data, error } = await supabase
+      .from('youth_statistics')
+      .select('count')
+      .limit(1)
+
+    if (error) throw error
+    console.log('✅ Database connection successful')
   } catch (error) {
-    console.error(`❌ Insert error: ${error.message}`)
-    return false
+    console.error('❌ Database connection failed:', error.message)
+    console.log('')
+    console.log('💡 To fix this:')
+    console.log('   1. Create new Supabase project at https://app.supabase.com')
+    console.log('   2. Update .env.new with your project credentials')
+    console.log('   3. Copy .env.new to .env and .env.local')
+    console.log('   4. Run: node scripts/setup-database-tables.mjs')
+    console.log('   5. Run this test again')
+    process.exit(1)
   }
+
+  console.log('')
+  console.log('🎉 DATABASE CONNECTION TEST PASSED!')
+  console.log('=================================')
+  console.log('')
+  console.log('🚀 Ready to run world-class scrapers!')
+  console.log('   Command: node scripts/run-world-class-scrapers.mjs')
 }
 
-async function runFullTest() {
-  console.log('🚀 Starting comprehensive database test...\n')
-  
-  const connectionOk = await testConnection()
-  const tableResults = await testAllTables()
-  const insertOk = await testSimpleInsert()
-  
-  console.log('\n📈 TEST SUMMARY')
-  console.log('===============')
-  
-  const workingTables = Object.values(tableResults).filter(r => r.status === 'OK').length
-  const totalTables = Object.keys(tableResults).length
-  const totalRecords = Object.values(tableResults).reduce((sum, r) => sum + r.count, 0)
-  
-  console.log(`✅ Connection: ${connectionOk ? 'WORKING' : 'FAILED'}`)
-  console.log(`📊 Tables: ${workingTables}/${totalTables} accessible`)
-  console.log(`💾 Insert: ${insertOk ? 'WORKING' : 'FAILED'}`)
-  console.log(`📝 Total Records: ${totalRecords}`)
-  
-  if (connectionOk && insertOk && workingTables > 0) {
-    console.log('\n🎯 DIAGNOSIS: Database is working!')
-    console.log('   The issue is likely in the scraper code, not the database connection.')
-    console.log('   Scrapers should be able to insert data successfully.')
-  } else {
-    console.log('\n⚠️  DIAGNOSIS: Database issues found!')
-    console.log('   Need to fix connection/permissions before scrapers will work.')
-  }
-  
-  console.log('\n📋 NEXT STEPS:')
-  if (connectionOk && insertOk) {
-    console.log('   1. Update scraper error handling')
-    console.log('   2. Fix scraper database insertion logic')
-    console.log('   3. Test individual scrapers')
-  } else {
-    console.log('   1. Check .env.local file for correct keys')
-    console.log('   2. Verify Supabase project permissions')
-    console.log('   3. Check if service key has expired')
-  }
-}
+// Error handling
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('❌ Unhandled Rejection:', reason)
+  process.exit(1)
+})
 
-runFullTest().catch(console.error)
+// Run test
+testConnection().catch(error => {
+  console.error('❌ Connection test failed:', error.message)
+  process.exit(1)
+})

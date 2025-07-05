@@ -1,5 +1,5 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
-import type { Database } from '@/types/supabase'
+import type { Database } from '../../types/supabase'
 
 export interface ScraperConfig {
   name: string
@@ -196,13 +196,13 @@ export abstract class BaseScraper {
       
       // If success, update success fields
       if (status === 'active') {
-        healthData.last_success_at = now
-        healthData.consecutive_failures = 0
+        (healthData as any).last_success_at = now
+        (healthData as any).consecutive_failures = 0
       }
       
       const { error } = await this.supabase
         .from('scraper_health')
-        .upsert(healthData, { onConflict: 'scraper_name' })
+        .upsert(healthData)
       
       if (error) {
         console.warn(`Failed to update scraper health: ${error.message}`)

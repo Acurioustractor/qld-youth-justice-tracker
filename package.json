@@ -18,7 +18,12 @@
     "build:scrapers": "tsc -p tsconfig.scrapers.json",
     "scrape:monitored": "npm run build:scrapers && node scripts/run-monitored-scrapers.mjs",
     "monitor:setup": "node scripts/setup-monitoring-tables.mjs",
-    "monitor:check": "node scripts/check-existing-data.mjs"
+    "monitor:check": "node scripts/check-existing-data.mjs",
+    "scrapers:all": "node scripts/run-professional-orchestrator.mjs all",
+    "scrapers:youth": "node scripts/run-professional-orchestrator.mjs youth",
+    "scrapers:budget": "node scripts/run-professional-orchestrator.mjs budget",
+    "scrapers:test": "node scripts/test-professional-scrapers.mjs",
+    "scrapers:schema-check": "node scripts/fix-database-schema.mjs"
   },
   "dependencies": {
     "@mendable/firecrawl-js": "^1.25.5",

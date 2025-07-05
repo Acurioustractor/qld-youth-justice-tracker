@@ -35,11 +35,9 @@ async function safeInsert(tableName, data, conflictColumns = null) {
   try {
     console.log(`  📝 Inserting ${data.length} records into ${tableName}...`)
     
-    let query = supabase.from(tableName).upsert(data)
-    
-    if (conflictColumns) {
-      query = query.onConflict(conflictColumns)
-    }
+    const query = supabase.from(tableName).upsert(data, {
+      onConflict: conflictColumns || undefined
+    })
     
     const { data: result, error } = await query.select()
     
