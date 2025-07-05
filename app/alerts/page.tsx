@@ -208,7 +208,8 @@ export default function AlertsPage() {
   }
 
   const shareAlert = (alert: Alert | DataAnomaly) => {
-    const text = `🚨 Queensland Youth Justice Alert: ${alert.message || alert.description}\n\nView more: ${window.location.href}`
+    const message = 'message' in alert ? alert.message : alert.description
+    const text = `🚨 Queensland Youth Justice Alert: ${message}\n\nView more: ${window.location.href}`
     
     if (navigator.share) {
       navigator.share({
