@@ -107,7 +107,6 @@ export default function HomePage() {
 
           {/* Key Metrics */}
           <HeadlineMetrics 
-            data={data}
             onSectionClick={(section) => {
               // Navigate to relevant section
               if (section === 'costs') {
@@ -127,19 +126,19 @@ export default function HomePage() {
             className="flex flex-col sm:flex-row gap-4 justify-center mt-12"
           >
             <Link
-              href="/data-explorer"
+              href="/dashboard"
               className="flex items-center justify-center gap-2 px-6 py-3 bg-qld-maroon text-white rounded-lg font-medium hover:bg-opacity-90 transition"
             >
               <TrendingUp className="w-5 h-5" />
-              Explore Full Data
+              View Full Dashboard
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
-              href="/downloads"
+              href="/action"
               className="flex items-center justify-center gap-2 px-6 py-3 bg-white text-gray-900 border-2 border-gray-300 rounded-lg font-medium hover:border-gray-400 transition"
             >
               <Download className="w-5 h-5" />
-              Download Evidence
+              Take Action
             </Link>
           </motion.div>
         </div>

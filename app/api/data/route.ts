@@ -1,51 +1,38 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
-
-
+// Redirect to the new dashboard API
 export async function GET() {
   try {
-    const supabase = createClient()
+    // Fetch from our new dashboard API
+    const response = await fetch(`${process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'}/api/dashboard`)
+    const dashboardData = await response.json()
     
-
-    
-    // Fetch youth statistics
-    const { data: youthStats } = await supabase
-      .from('youth_statistics')
-      .select('*')
-      .order('date', { ascending: false })
-      .limit(1)
-      .single()
-    
-
-    
-    // Fetch trend data
-    const { data: trends } = await supabase
-      .from('cost_comparisons')
-      .select('date, detention_spending_percentage, community_spending_percentage')
-      .order('date', { ascending: false })
-      .limit(30)
-    
-
-    
-
-    
-    // Format response data
+    // Transform to match the expected format of the homepage
     const responseData = {
-      timestamp: new Date().toISOString(),
+      timestamp: dashboardData.timestamp,
+      spending: {
+        total_budget: dashboardData.budget.totalYouthJustice,
+        detention_total: dashboardData.budget.detentionOperations,
+        community_total: dashboardData.budget.communityPrograms,
+        detention_percentage: dashboardData.budget.detentionPercentage,
+        community_percentage: dashboardData.budget.communityPercentage,
+        detention_daily_cost: dashboardData.budget.claimedDetentionCostPerDay,
+        community_daily_cost: dashboardData.budget.dailyCommunityProgramCost,
+        cost_ratio: dashboardData.budget.costRatio
+      },
       indigenous: {
-        detention_percentage: youthStats?.indigenous_percentage || 75.0,
-        population_percentage: 4.5,
-        overrepresentation_factor: (youthStats?.indigenous_percentage || 75.0) / 4.5,
-        min_factor: 22,
-        max_factor: 33
+        detention_percentage: dashboardData.detention.indigenousPercentage,
+        population_percentage: dashboardData.insights.indigenousOverrepresentation.populationPercentage,
+        overrepresentation_factor: dashboardData.insights.indigenousOverrepresentation.detention,
+        min_factor: 15,
+        max_factor: 20
       },
       trends: {
-        dates: trends?.map(t => t.date) || [],
-        detention_percentages: trends?.map(t => t.detention_spending_percentage) || [],
-        community_percentages: trends?.map(t => t.community_spending_percentage) || []
+        dates: [],
+        detention_percentages: [],
+        community_percentages: []
       }
     }
 

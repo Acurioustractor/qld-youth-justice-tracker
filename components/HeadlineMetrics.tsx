@@ -3,16 +3,17 @@
 import { motion } from 'framer-motion'
 import CountUp from 'react-countup'
 import { useState, useEffect } from 'react'
-import { TreasuryBadge, AIHWBadge, QPSBadge } from './DataSourceBadge'
+import { TreasuryBadge, AIHWBadge, QPSBadge, CourtsBadge } from './DataSourceBadge'
+import { useDashboardData } from '@/hooks/useDashboardData'
 
 interface HeadlineMetricsProps {
-  data: any
   onSectionClick: (section: string) => void
   mode: 'overview' | 'analysis' | 'advocacy'
 }
 
-export function HeadlineMetrics({ data, onSectionClick, mode }: HeadlineMetricsProps) {
+export function HeadlineMetrics({ onSectionClick, mode }: HeadlineMetricsProps) {
   const [currentTime, setCurrentTime] = useState(new Date())
+  const { data, isLoading } = useDashboardData()
   
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000)
@@ -23,8 +24,13 @@ export function HeadlineMetrics({ data, onSectionClick, mode }: HeadlineMetricsP
   const todayStart = new Date()
   todayStart.setHours(0, 0, 0, 0)
   const secondsSinceMidnight = (currentTime.getTime() - todayStart.getTime()) / 1000
-  const dailyDetentionCost = (data.spending?.detention_total || 453000000) / 365
+  
+  // Use real data or fallback values
+  const dailyDetentionCost = data?.budget.dailyDetentionCost || 1213698
   const moneyBurnedToday = (dailyDetentionCost / 86400) * secondsSinceMidnight
+  const indigenousPercentage = data?.detention.indigenousPercentage || 73.4
+  const costRatio = data?.budget.costRatio || 21
+  const communityProgramsLost = data?.insights.kidsWhoCouldBeHelpedInstead || Math.floor(dailyDetentionCost / 41)
   
   const metricsData = [
     {
@@ -37,40 +43,44 @@ export function HeadlineMetrics({ data, onSectionClick, mode }: HeadlineMetricsP
       bgColor: 'from-red-500/20 to-red-600/20',
       description: 'Real-time taxpayer money spent',
       clickSection: 'costs',
-      source: 'treasury'
+      source: 'treasury',
+      verified: data?.budget.source.document
     },
     {
       id: 'indigenous-kids',
       label: "Indigenous Kids Locked Up",
-      value: 75,
+      value: indigenousPercentage,
       suffix: '%',
       color: 'text-amber-500',
       bgColor: 'from-amber-500/20 to-amber-600/20',
-      description: 'Despite being 4.5% of population',
+      description: `Despite being ${data?.insights.indigenousOverrepresentation.populationPercentage || 4.6}% of population`,
       clickSection: 'indigenous',
-      source: 'aihw'
+      source: 'detention',
+      verified: data?.detention.source.document
     },
     {
       id: 'cost-ratio',
       label: "More Expensive Than Community",
-      value: 21,
+      value: costRatio,
       suffix: 'x',
       color: 'text-purple-500',
       bgColor: 'from-purple-500/20 to-purple-600/20',
-      description: '$857/day vs $41/day',
+      description: `$${data?.budget.claimedDetentionCostPerDay || 857}/day vs $${data?.budget.dailyCommunityProgramCost || 41}/day`,
       clickSection: 'costs',
-      source: 'treasury'
+      source: 'treasury',
+      verified: data?.budget.source.document
     },
     {
       id: 'alternatives-lost',
       label: "Community Programs Lost Daily",
-      value: Math.floor(dailyDetentionCost / 41),
+      value: communityProgramsLost,
       suffix: '',
       color: 'text-emerald-500',
       bgColor: 'from-emerald-500/20 to-emerald-600/20',
       description: 'Kids who could be helped instead',
       clickSection: 'alternatives',
-      source: 'treasury'
+      source: 'treasury',
+      verified: data?.budget.source.document
     }
   ]
 
@@ -87,6 +97,22 @@ export function HeadlineMetrics({ data, onSectionClick, mode }: HeadlineMetricsP
   const item = {
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0 }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="text-center">
+        <div className="animate-pulse">
+          <div className="h-12 bg-gray-200 rounded w-3/4 mx-auto mb-4"></div>
+          <div className="h-8 bg-gray-200 rounded w-1/2 mx-auto mb-12"></div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-6xl mx-auto px-4">
+            {[1, 2, 3, 4].map(i => (
+              <div key={i} className="bg-gray-100 rounded-xl h-48"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -145,7 +171,8 @@ export function HeadlineMetrics({ data, onSectionClick, mode }: HeadlineMetricsP
               {/* Data Source Badge */}
               <div className="mt-3">
                 {metric.source === 'treasury' && <TreasuryBadge size="sm" />}
-                {metric.source === 'aihw' && <AIHWBadge size="sm" />}
+                {metric.source === 'detention' && <AIHWBadge size="sm" />}
+                {metric.source === 'courts' && <CourtsBadge size="sm" />}
                 {metric.source === 'qps' && <QPSBadge size="sm" />}
               </div>
             </div>
