@@ -7,16 +7,36 @@ export async function GET() {
   try {
     const supabase = createClient()
     
-    // Get all data sources metadata
-    const queries = [
-      supabase.from('court_statistics').select('source_document, source_url, verified_date, page_references').limit(1).order('report_period', { ascending: false }),
-      supabase.from('youth_detention_statistics').select('source_document, source_url, report_date').limit(1).order('snapshot_date', { ascending: false }),
-      supabase.from('budget_allocations').select('source_document, source_url, fiscal_year, created_at').limit(1).order('fiscal_year', { ascending: false }),
-      supabase.from('police_statistics').select('source_document, source_url, verified_date').limit(1).order('report_period', { ascending: false }),
-      supabase.from('audit_findings').select('source_document, source_url, report_date, verified_date').limit(1).order('report_date', { ascending: false })
-    ]
+    // Get all data sources metadata with proper error handling
+    const courtResult = await supabase
+      .from('court_statistics')
+      .select('source_document, source_url, verified_date, page_references')
+      .limit(1)
+      .order('report_period', { ascending: false })
     
-    const [court, detention, budget, police, audit] = await Promise.all(queries)
+    const detentionResult = await supabase
+      .from('youth_detention_statistics')
+      .select('source_document, source_url, report_date')
+      .limit(1)
+      .order('snapshot_date', { ascending: false })
+    
+    const budgetResult = await supabase
+      .from('budget_allocations')
+      .select('source_document, source_url, fiscal_year, created_at')
+      .limit(1)
+      .order('fiscal_year', { ascending: false })
+    
+    const policeResult = await supabase
+      .from('police_statistics')
+      .select('source_document, source_url, verified_date')
+      .limit(1)
+      .order('report_period', { ascending: false })
+    
+    const auditResult = await supabase
+      .from('audit_findings')
+      .select('source_document, source_url, report_date, verified_date')
+      .limit(1)
+      .order('report_date', { ascending: false })
     
     // Compile all sources with verification status
     const sources = {
@@ -36,10 +56,10 @@ export async function GET() {
         {
           id: 'childrens-court-ar',
           category: 'Court Statistics',
-          name: court.data?.[0]?.source_document || 'Childrens Court Annual Report 2023-24',
-          url: court.data?.[0]?.source_url || 'https://www.courts.qld.gov.au/__data/assets/pdf_file/0006/819771/cc-ar-2023-2024.pdf',
-          verifiedDate: court.data?.[0]?.verified_date || '2025-07-05',
-          pageReferences: court.data?.[0]?.page_references || {
+          name: courtResult.data?.[0]?.source_document || 'Childrens Court Annual Report 2023-24',
+          url: courtResult.data?.[0]?.source_url || 'https://www.courts.qld.gov.au/__data/assets/pdf_file/0006/819771/cc-ar-2023-2024.pdf',
+          verifiedDate: courtResult.data?.[0]?.verified_date || '2025-07-05',
+          pageReferences: courtResult.data?.[0]?.page_references || {
             total_defendants: 'p. 15',
             indigenous_data: 'p. 18-19',
             bail_statistics: 'p. 22',
@@ -57,9 +77,9 @@ export async function GET() {
         {
           id: 'youth-detention-census',
           category: 'Detention Statistics',
-          name: detention.data?.[0]?.source_document || 'Youth Detention Census Q1 2024',
-          url: detention.data?.[0]?.source_url || 'https://www.cyjma.qld.gov.au/resources/dcsyw/youth-justice/publications/yj-census-summary.pdf',
-          verifiedDate: detention.data?.[0]?.report_date || '2024-03-31',
+          name: detentionResult.data?.[0]?.source_document || 'Youth Detention Census Q1 2024',
+          url: detentionResult.data?.[0]?.source_url || 'https://www.cyjma.qld.gov.au/resources/dcsyw/youth-justice/publications/yj-census-summary.pdf',
+          verifiedDate: detentionResult.data?.[0]?.report_date || '2024-03-31',
           pageReferences: {
             summary: 'Summary page',
             demographics: 'Demographics section',
@@ -77,9 +97,9 @@ export async function GET() {
         {
           id: 'state-budget',
           category: 'Financial Data',
-          name: budget.data?.[0]?.source_document || 'Queensland Budget 2024-25 - DCSSDS',
-          url: budget.data?.[0]?.source_url || 'https://budget.qld.gov.au/files/Budget_2024-25_DCSSDS_Budget_Statements.pdf',
-          verifiedDate: budget.data?.[0]?.created_at || '2025-07-05',
+          name: budgetResult.data?.[0]?.source_document || 'Queensland Budget 2024-25 - DCSSDS',
+          url: budgetResult.data?.[0]?.source_url || 'https://budget.qld.gov.au/files/Budget_2024-25_DCSSDS_Budget_Statements.pdf',
+          verifiedDate: budgetResult.data?.[0]?.created_at || '2025-07-05',
           pageReferences: {
             youth_justice_services: 'p. 78-82',
             capital_works: 'p. 145-148',
@@ -97,9 +117,9 @@ export async function GET() {
         {
           id: 'police-statistics',
           category: 'Crime Data',
-          name: police.data?.[0]?.source_document || 'QPS Statistical Review 2023-24',
-          url: police.data?.[0]?.source_url || 'https://www.police.qld.gov.au/sites/default/files/2024-08/QPS%20Statistical%20Review%202023-24.pdf',
-          verifiedDate: police.data?.[0]?.verified_date || '2025-07-05',
+          name: policeResult.data?.[0]?.source_document || 'QPS Statistical Review 2023-24',
+          url: policeResult.data?.[0]?.source_url || 'https://www.police.qld.gov.au/sites/default/files/2024-08/QPS%20Statistical%20Review%202023-24.pdf',
+          verifiedDate: policeResult.data?.[0]?.verified_date || '2025-07-05',
           pageReferences: {
             youth_crime_section: 'p. 45-48',
             trends: 'p. 52',
@@ -117,10 +137,10 @@ export async function GET() {
         {
           id: 'audit-report',
           category: 'Performance Audit',
-          name: audit.data?.[0]?.source_document || 'QAO Report - Managing Youth Justice Demand',
-          url: audit.data?.[0]?.source_url || 'https://www.qao.qld.gov.au/reports-resources/managing-youth-justice-demand',
-          verifiedDate: audit.data?>[0]?.verified_date || '2025-07-05',
-          reportDate: audit.data?.[0]?.report_date || '2024-06-15',
+          name: auditResult.data?.[0]?.source_document || 'QAO Report - Managing Youth Justice Demand',
+          url: auditResult.data?.[0]?.source_url || 'https://www.qao.qld.gov.au/reports-resources/managing-youth-justice-demand',
+          verifiedDate: auditResult.data?.[0]?.verified_date || '2025-07-05',
+          reportDate: auditResult.data?.[0]?.report_date || '2024-06-15',
           pageReferences: {
             executive_summary: 'Executive Summary',
             financial_analysis: 'Chapter 3',
