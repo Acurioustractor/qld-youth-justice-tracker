@@ -94,7 +94,7 @@ export function HeadlineMetrics({ data, onSectionClick, mode }: HeadlineMetricsP
       <motion.h1 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-5xl md:text-7xl font-bold text-white mb-4"
+        className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-4"
       >
         Queensland's Youth Justice
       </motion.h1>
@@ -102,7 +102,7 @@ export function HeadlineMetrics({ data, onSectionClick, mode }: HeadlineMetricsP
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
-        className="text-2xl md:text-3xl text-qld-gold mb-12"
+        className="text-xl sm:text-2xl md:text-3xl text-qld-maroon mb-8 sm:mb-12"
       >
         The Shocking Truth in Real-Time
       </motion.p>
@@ -111,7 +111,7 @@ export function HeadlineMetrics({ data, onSectionClick, mode }: HeadlineMetricsP
         variants={container}
         initial="hidden"
         animate="show"
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-6xl mx-auto px-4"
       >
         {metricsData.map((metric, index) => (
           <motion.div
@@ -120,10 +120,10 @@ export function HeadlineMetrics({ data, onSectionClick, mode }: HeadlineMetricsP
             whileHover={{ scale: 1.05, y: -5 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => onSectionClick(metric.clickSection)}
-            className={`cursor-pointer bg-gradient-to-br ${metric.bgColor} backdrop-blur-lg rounded-2xl p-6 border border-gray-700 hover:border-gray-600 transition-all`}
+            className={`cursor-pointer bg-gradient-to-br ${metric.bgColor} backdrop-blur-lg rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-200 hover:border-gray-300 shadow-lg hover:shadow-xl transition-all`}
           >
             <div className="space-y-2">
-              <h3 className={`text-4xl md:text-5xl font-bold ${metric.color}`}>
+              <h3 className={`text-3xl sm:text-4xl md:text-5xl font-bold ${metric.color}`}>
                 <CountUp
                   start={0}
                   end={metric.value}
@@ -135,8 +135,8 @@ export function HeadlineMetrics({ data, onSectionClick, mode }: HeadlineMetricsP
                   preserveValue={metric.id === 'money-burned'}
                 />
               </h3>
-              <p className="text-sm text-gray-300 font-medium">{metric.label}</p>
-              <p className="text-xs text-gray-500">{metric.description}</p>
+              <p className="text-sm sm:text-base text-gray-700 font-medium">{metric.label}</p>
+              <p className="text-xs sm:text-sm text-gray-600">{metric.description}</p>
               
               {/* Data Source Badge */}
               <div className="mt-3">
