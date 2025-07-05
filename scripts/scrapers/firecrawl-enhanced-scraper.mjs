@@ -202,15 +202,26 @@ async function storeExtractedData(data, target) {
   if (data.length === 0) return
   
   try {
-    // Store in a general scraped_content table
+    // Store in scraped_content table with actual schema
+    const recordsToInsert = data.map(item => ({
+      source: target.name,
+      url: item.url,
+      title: `${item.type} - ${target.name}`,
+      content: item.content,
+      metadata: {
+        type: item.type,
+        mentions: item.mentions || 0,
+        budget_figures: item.budget_figures || null,
+        extracted_at: item.scraped_at
+      },
+      scraper_name: 'firecrawl-enhanced',
+      data_type: target.dataType,
+      scraped_at: item.scraped_at
+    }))
+    
     const { error } = await supabase
       .from('scraped_content')
-      .insert(data.map(item => ({
-        ...item,
-        source: target.name,
-        source_url: target.url,
-        data_type: target.dataType
-      })))
+      .insert(recordsToInsert)
     
     if (error) {
       console.log(`   ⚠️  Could not store in database: ${error.message}`)
