@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import verifiedStats from '@/data/verified-statistics.json'
 
 export const dynamic = 'force-dynamic'
 
@@ -7,7 +8,7 @@ export async function GET() {
   try {
     const supabase = createClient()
     
-    // Get all data sources metadata with proper error handling
+    // Try to get data from database, but use verified JSON as fallback
     const courtResult = await supabase
       .from('court_statistics')
       .select('source_document, source_url, verified_date, page_references')
@@ -38,6 +39,13 @@ export async function GET() {
       .limit(1)
       .order('report_date', { ascending: false })
     
+    // Use verified JSON data as fallback for missing database data
+    const courtData = verifiedStats.court_statistics[0]
+    const detentionData = verifiedStats.youth_detention[0]
+    const budgetData = verifiedStats.budget_data[0]
+    const policeData = verifiedStats.police_statistics[0]
+    const auditData = verifiedStats.audit_findings[0]
+    
     // Compile all sources with verification status
     const sources = {
       timestamp: new Date().toISOString(),
@@ -56,15 +64,10 @@ export async function GET() {
         {
           id: 'childrens-court-ar',
           category: 'Court Statistics',
-          name: courtResult.data?.[0]?.source_document || 'Childrens Court Annual Report 2023-24',
-          url: courtResult.data?.[0]?.source_url || 'https://www.courts.qld.gov.au/__data/assets/pdf_file/0006/819771/cc-ar-2023-2024.pdf',
-          verifiedDate: courtResult.data?.[0]?.verified_date || '2025-07-05',
-          pageReferences: courtResult.data?.[0]?.page_references || {
-            total_defendants: 'p. 15',
-            indigenous_data: 'p. 18-19',
-            bail_statistics: 'p. 22',
-            time_to_finalization: 'p. 28'
-          },
+          name: courtResult.data?.[0]?.source_document || courtData.source_document,
+          url: courtResult.data?.[0]?.source_url || courtData.source_url,
+          verifiedDate: courtResult.data?.[0]?.verified_date || courtData.verified_date,
+          pageReferences: courtResult.data?.[0]?.page_references || courtData.page_references,
           keyStatistics: [
             '8,457 total defendants',
             '61.9% Indigenous representation',
@@ -77,9 +80,9 @@ export async function GET() {
         {
           id: 'youth-detention-census',
           category: 'Detention Statistics',
-          name: detentionResult.data?.[0]?.source_document || 'Youth Detention Census Q1 2024',
-          url: detentionResult.data?.[0]?.source_url || 'https://www.cyjma.qld.gov.au/resources/dcsyw/youth-justice/publications/yj-census-summary.pdf',
-          verifiedDate: detentionResult.data?.[0]?.report_date || '2024-03-31',
+          name: detentionResult.data?.[0]?.source_document || detentionData.source_document,
+          url: detentionResult.data?.[0]?.source_url || detentionData.source_url,
+          verifiedDate: detentionResult.data?.[0]?.report_date || detentionData.verified_date,
           pageReferences: {
             summary: 'Summary page',
             demographics: 'Demographics section',
