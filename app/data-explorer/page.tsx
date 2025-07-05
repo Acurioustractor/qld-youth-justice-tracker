@@ -63,13 +63,14 @@ const DATA_TABS: DataTab[] = [
   },
   {
     id: 'costs',
-    name: 'Cost Comparisons',
-    table: 'cost_comparisons',
+    name: 'Budget Analysis',
+    table: 'budget_allocations',
     icon: '💸',
-    description: 'Daily cost comparisons between detention ($857/day) and community programs ($41/day)',
-    fields: ['date', 'detention_daily_cost', 'community_daily_cost', 'cost_ratio', 'detention_spending_percentage'],
+    description: 'Budget allocations showing detention vs community program spending',
+    fields: ['fiscal_year', 'program', 'category', 'amount', 'description'],
     filters: [
-      { field: 'date', label: 'Date', type: 'date' }
+      { field: 'fiscal_year', label: 'Fiscal Year', type: 'select', options: ['2025-26', '2024-25', '2023-24'] },
+      { field: 'category', label: 'Category', type: 'select', options: ['detention', 'community'] }
     ]
   },
   {

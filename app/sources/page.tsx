@@ -41,7 +41,7 @@ const dataSources = [
     ],
     methodology: 'Automated web scraping of published government reports with statistical validation',
     limitations: 'Data typically 3-6 months behind current date due to reporting delays',
-    tables: ['aihw_statistics']
+    tables: ['youth_statistics']
   },
   {
     id: 'treasury',
@@ -72,7 +72,7 @@ const dataSources = [
     ],
     methodology: 'Direct extraction from published budget PDFs with cross-validation',
     limitations: 'Mid-year budget updates may not be immediately reflected',
-    tables: ['budget_allocations', 'spending_analysis']
+    tables: ['budget_allocations']
   },
   {
     id: 'courts',
@@ -103,7 +103,7 @@ const dataSources = [
     ],
     methodology: 'PDF extraction with OCR for older documents, validated against court bulletins',
     limitations: 'Individual case details redacted for privacy',
-    tables: ['court_statistics', 'court_sentencing']
+    tables: ['court_statistics']
   },
   {
     id: 'police',
@@ -134,7 +134,7 @@ const dataSources = [
     ],
     methodology: 'API integration with QPS data portal, supplemented by monthly reports',
     limitations: 'Some regional data aggregated for small populations',
-    tables: ['youth_crimes', 'youth_crime_patterns']
+    tables: ['youth_crimes']
   },
   {
     id: 'youth_justice',
@@ -165,7 +165,7 @@ const dataSources = [
     ],
     methodology: 'Web scraping of public dashboards with manual validation',
     limitations: 'Real-time occupancy not available, monthly snapshots only',
-    tables: ['youth_statistics', 'detention_metrics']
+    tables: ['youth_statistics']
   },
   {
     id: 'rti',
@@ -191,7 +191,7 @@ const dataSources = [
     ],
     methodology: 'Systematic RTI requests with follow-up for missing data',
     limitations: 'Government can redact or refuse sensitive information',
-    tables: ['rti_requests', 'hidden_costs']
+    tables: ['rti_requests']
   }
 ]
 
