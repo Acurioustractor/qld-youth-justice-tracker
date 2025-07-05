@@ -23,9 +23,14 @@ export const metadata: Metadata = {
     title: 'QLD Youth Justice Crisis',
     description: '73.4% Indigenous | $1.2M/day wasted | 58% reoffend | Verified gov data',
   },
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=5',
-  themeColor: '#7c2d12',
   manifest: '/manifest.json'
+}
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: '#7c2d12'
 }
 
 export default function RootLayout({
@@ -40,7 +45,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="QLD Justice" />
-        <link rel="apple-touch-icon" href="/icon-192.png" />
+        <link rel="apple-touch-icon" href="/icon.svg" />
       </head>
       <body className={inter.className}>
         <LayoutWrapper>
