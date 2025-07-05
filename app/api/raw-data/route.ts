@@ -42,7 +42,7 @@ export async function GET() {
       total_budget_records: allData.budget_allocations.length,
       total_parliament_records: allData.parliamentary_documents.length,
       total_health_records: allData.scraper_health.length,
-      data_sources: [...new Set(allData.scraped_content.map((item: any) => item.source))],
+      data_sources: Array.from(new Set(allData.scraped_content.map((item: any) => item.source))),
       last_scrape: allData.scraped_content[0]?.scraped_at || null
     }
 
