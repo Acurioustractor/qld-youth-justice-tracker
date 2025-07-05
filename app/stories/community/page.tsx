@@ -92,7 +92,7 @@ Ten years later, all four siblings have criminal records. What began as one chil
       'All siblings developed trauma responses',
       '3 of 4 siblings entered justice system',
       'Combined legal fees exceeded $50,000',
-      'Parents' marriage ended in divorce',
+      "Parents' marriage ended in divorce",
       'Years of therapy for entire family',
       'Educational failure across all children'
     ],

@@ -71,7 +71,7 @@ export default function AlertsPage() {
           .from('scraper_health')
           .select('*')
 
-        const generatedAlerts = []
+        const generatedAlerts: Alert[] = []
         
         healthData?.forEach(health => {
           if (health.status === 'error' || health.consecutive_failures > 2) {
@@ -129,7 +129,7 @@ export default function AlertsPage() {
               metric: 'Budget Allocation',
               expected: 50,
               actual: detentionPercentage,
-              severity: detentionPercentage > 90 ? 'critical' : 'high',
+              severity: detentionPercentage > 90 ? 'critical' : 'high' as 'critical' | 'high',
               description: `${detentionPercentage.toFixed(1)}% of youth justice budget allocated to detention, only ${(100 - detentionPercentage).toFixed(1)}% to community programs`,
               created_at: new Date().toISOString()
             })
@@ -153,7 +153,7 @@ export default function AlertsPage() {
             metric: 'Indigenous Youth in Detention',
             expected: 5, // Population percentage
             actual: avgIndigenousPercentage,
-            severity: avgIndigenousPercentage > 65 ? 'critical' : 'high',
+            severity: avgIndigenousPercentage > 65 ? 'critical' : 'high' as 'critical' | 'high',
             description: `Indigenous youth represent ${avgIndigenousPercentage.toFixed(1)}% of detention population vs 5% of general youth population`,
             created_at: new Date().toISOString()
           })
