@@ -260,7 +260,7 @@ export function useSourcesData() {
 export function useMoneyCounter() {
   const { data } = useDashboardData()
   
-  if (!data) return { moneyWasted: 0, kidsHelped: 0 }
+  if (!data || !data.budget) return { moneyWasted: 0, kidsHelped: 0 }
   
   const dailyDetentionCost = data.budget.dailyDetentionCost
   const dailyCommunityProgramCost = data.budget.dailyCommunityProgramCost

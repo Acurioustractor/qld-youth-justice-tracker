@@ -26,11 +26,11 @@ export function HeadlineMetrics({ onSectionClick, mode }: HeadlineMetricsProps) 
   const secondsSinceMidnight = (currentTime.getTime() - todayStart.getTime()) / 1000
   
   // Use real data or fallback values
-  const dailyDetentionCost = data?.budget.dailyDetentionCost || 1213698
+  const dailyDetentionCost = data?.budget?.dailyDetentionCost || 1213698
   const moneyBurnedToday = (dailyDetentionCost / 86400) * secondsSinceMidnight
-  const indigenousPercentage = data?.detention.indigenousPercentage || 73.4
-  const costRatio = data?.budget.costRatio || 21
-  const communityProgramsLost = data?.insights.kidsWhoCouldBeHelpedInstead || Math.floor(dailyDetentionCost / 41)
+  const indigenousPercentage = data?.detention?.indigenousPercentage || 73.4
+  const costRatio = data?.budget?.costRatio || 21
+  const communityProgramsLost = data?.insights?.kidsWhoCouldBeHelpedInstead || Math.floor(dailyDetentionCost / 41)
   
   const metricsData = [
     {
@@ -44,7 +44,7 @@ export function HeadlineMetrics({ onSectionClick, mode }: HeadlineMetricsProps) 
       description: 'Real-time taxpayer money spent',
       clickSection: 'costs',
       source: 'treasury',
-      verified: data?.budget.source.document
+      verified: data?.budget?.source?.document
     },
     {
       id: 'indigenous-kids',
@@ -53,10 +53,10 @@ export function HeadlineMetrics({ onSectionClick, mode }: HeadlineMetricsProps) 
       suffix: '%',
       color: 'text-amber-500',
       bgColor: 'from-amber-500/20 to-amber-600/20',
-      description: `Despite being ${data?.insights.indigenousOverrepresentation.populationPercentage || 4.6}% of population`,
+      description: `Despite being ${data?.insights?.indigenousOverrepresentation?.populationPercentage || 4.6}% of population`,
       clickSection: 'indigenous',
       source: 'detention',
-      verified: data?.detention.source.document
+      verified: data?.detention?.source?.document
     },
     {
       id: 'cost-ratio',
@@ -65,10 +65,10 @@ export function HeadlineMetrics({ onSectionClick, mode }: HeadlineMetricsProps) 
       suffix: 'x',
       color: 'text-purple-500',
       bgColor: 'from-purple-500/20 to-purple-600/20',
-      description: `$${data?.budget.claimedDetentionCostPerDay || 857}/day vs $${data?.budget.dailyCommunityProgramCost || 41}/day`,
+      description: `$${data?.budget?.claimedDetentionCostPerDay || 857}/day vs $${data?.budget?.dailyCommunityProgramCost || 41}/day`,
       clickSection: 'costs',
       source: 'treasury',
-      verified: data?.budget.source.document
+      verified: data?.budget?.source?.document
     },
     {
       id: 'alternatives-lost',
@@ -80,7 +80,7 @@ export function HeadlineMetrics({ onSectionClick, mode }: HeadlineMetricsProps) 
       description: 'Kids who could be helped instead',
       clickSection: 'alternatives',
       source: 'treasury',
-      verified: data?.budget.source.document
+      verified: data?.budget?.source?.document
     }
   ]
 
