@@ -1,17 +1,13 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { getSupabaseClient } from "@/lib/supabase/client"
 import { DollarSign, TrendingUp, PieChart, AlertTriangle, Download, Calculator } from 'lucide-react'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js'
 import { Pie, Bar } from 'react-chartjs-2'
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title)
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
 
 interface CostData {
   category: string
@@ -52,6 +48,8 @@ export default function CostsPage() {
   const [loading, setLoading] = useState(true)
   const [selectedYear, setSelectedYear] = useState('2025-26')
   const [comparisonMode, setComparisonMode] = useState<'qld' | 'national' | 'international'>('qld')
+  
+  const supabase = getSupabaseClient()
 
   useEffect(() => {
     fetchBudgetData()

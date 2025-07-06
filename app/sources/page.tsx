@@ -1,14 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { getSupabaseClient } from '@/lib/supabase/client'
 import { ExternalLink, CheckCircle, AlertCircle, Download, RefreshCw, Shield, Database, Clock } from 'lucide-react'
 import Link from 'next/link'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
 
 // Data source configurations with full transparency
 const dataSources = [
@@ -199,6 +194,8 @@ export default function SourcesPage() {
   const [selectedSource, setSelectedSource] = useState<string | null>(null)
   const [recordCounts, setRecordCounts] = useState<Record<string, number>>({})
   const [loading, setLoading] = useState(true)
+  
+  const supabase = getSupabaseClient()
 
   useEffect(() => {
     fetchRecordCounts()

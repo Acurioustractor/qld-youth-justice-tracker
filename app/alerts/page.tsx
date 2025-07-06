@@ -1,16 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { getSupabaseClient } from '@/lib/supabase/client'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { AlertTriangle, TrendingUp, DollarSign, Users, Bell, X, Share2, RefreshCw, Download } from 'lucide-react'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
 
 interface Alert {
   id: string
@@ -41,6 +37,8 @@ export default function AlertsPage() {
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'all' | 'critical' | 'unresolved' | 'recent'>('all')
   const [lastRefresh, setLastRefresh] = useState(new Date())
+  
+  const supabase = getSupabaseClient()
 
   useEffect(() => {
     fetchAlerts()

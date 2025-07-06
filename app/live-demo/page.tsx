@@ -1,12 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { getSupabaseClient } from "@/lib/supabase/client"
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
 
 interface ScrapedData {
   id: string
@@ -30,6 +26,8 @@ export default function LiveDemoPage() {
   const [healthData, setHealthData] = useState<ScraperHealth[]>([])
   const [totalRecords, setTotalRecords] = useState(0)
   const [loading, setLoading] = useState(true)
+  
+  const supabase = getSupabaseClient()
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date())
 
   useEffect(() => {
