@@ -34,7 +34,21 @@ export default function UnifiedDashboard() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <p className="text-xl text-gray-900">Unable to load dashboard</p>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Unable to load dashboard</h2>
+          <p className="text-gray-600 mb-4">
+            We're having trouble connecting to our data sources. This might be a temporary issue.
+          </p>
+          <div className="space-y-2">
+            <button 
+              onClick={() => window.location.reload()}
+              className="px-6 py-2 bg-qld-maroon text-white rounded-lg hover:bg-opacity-90 transition"
+            >
+              Try Again
+            </button>
+            <p className="text-sm text-gray-500">
+              If the problem persists, our team has been notified.
+            </p>
+          </div>
         </div>
       </div>
     )

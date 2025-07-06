@@ -253,9 +253,16 @@ class InterviewManager:
         return templates
     
     def create_template_in_db(self, stakeholder_type: str):
-        """Create interview template in database."""
+        """Create interview template in database with input validation."""
+        # Input validation
+        if not stakeholder_type or not isinstance(stakeholder_type, str):
+            raise ValueError("Stakeholder type must be a non-empty string")
+        
+        stakeholder_type = stakeholder_type.strip().lower()
+        
         if stakeholder_type not in self.templates:
-            raise ValueError(f"Unknown stakeholder type: {stakeholder_type}")
+            valid_types = list(self.templates.keys())
+            raise ValueError(f"Unknown stakeholder type: {stakeholder_type}. Valid types: {valid_types}")
             
         template_data = self.templates[stakeholder_type]
         
@@ -287,10 +294,84 @@ class InterviewManager:
         finally:
             db.close()
     
+    def _validate_interview_input(self, stakeholder_type: str, participant_code: str, 
+                                 responses: Dict[str, str], interviewer: str = None,
+                                 location: str = None) -> None:
+        """Validate input parameters for interview creation."""
+        # Validate stakeholder type
+        if not stakeholder_type or not isinstance(stakeholder_type, str):
+            raise ValueError("Stakeholder type must be a non-empty string")
+        
+        if stakeholder_type not in self.templates:
+            valid_types = list(self.templates.keys())
+            raise ValueError(f"Invalid stakeholder type '{stakeholder_type}'. Must be one of: {valid_types}")
+        
+        # Validate participant code
+        if not participant_code or not isinstance(participant_code, str):
+            raise ValueError("Participant code must be a non-empty string")
+        
+        if len(participant_code.strip()) < 2:
+            raise ValueError("Participant code must be at least 2 characters long")
+        
+        # Sanitize participant code (remove special characters for security)
+        import re
+        if not re.match(r'^[a-zA-Z0-9_-]+$', participant_code.strip()):
+            raise ValueError("Participant code can only contain letters, numbers, hyphens, and underscores")
+        
+        # Validate responses
+        if not responses or not isinstance(responses, dict):
+            raise ValueError("Responses must be a non-empty dictionary")
+        
+        if len(responses) == 0:
+            raise ValueError("At least one response is required")
+        
+        # Validate response values
+        for question_id, response_text in responses.items():
+            if not isinstance(question_id, str) or not question_id.strip():
+                raise ValueError(f"Question ID must be a non-empty string, got: {question_id}")
+            
+            if response_text is None:
+                continue  # Allow None responses
+                
+            if not isinstance(response_text, (str, int, float)):
+                raise ValueError(f"Response for question '{question_id}' must be a string, number, or None")
+            
+            # Limit response length for security
+            if isinstance(response_text, str) and len(response_text) > 10000:
+                raise ValueError(f"Response for question '{question_id}' is too long (max 10,000 characters)")
+        
+        # Validate optional parameters
+        if interviewer is not None:
+            if not isinstance(interviewer, str) or len(interviewer.strip()) == 0:
+                raise ValueError("Interviewer must be a non-empty string if provided")
+            if len(interviewer) > 255:
+                raise ValueError("Interviewer name is too long (max 255 characters)")
+        
+        if location is not None:
+            if not isinstance(location, str) or len(location.strip()) == 0:
+                raise ValueError("Location must be a non-empty string if provided")
+            if len(location) > 255:
+                raise ValueError("Location is too long (max 255 characters)")
+
     def conduct_interview(self, stakeholder_type: str, participant_code: str,
                          responses: Dict[str, str], interviewer: str = None,
                          location: str = None) -> Optional[int]:
-        """Record interview responses."""
+        """Record interview responses with comprehensive input validation."""
+        # Validate all inputs
+        try:
+            self._validate_interview_input(stakeholder_type, participant_code, responses, interviewer, location)
+        except ValueError as e:
+            logger.error(f"Input validation failed for interview: {e}")
+            raise
+        
+        # Sanitize inputs
+        stakeholder_type = stakeholder_type.strip().lower()
+        participant_code = participant_code.strip()
+        if interviewer:
+            interviewer = interviewer.strip()
+        if location:
+            location = location.strip()
+        
         db = next(get_db())
         
         try:
@@ -415,6 +496,10 @@ class InterviewManager:
     
     def get_interview_summary(self, interview_id: int) -> Dict:
         """Get summary of an interview including themes and key responses."""
+        # Input validation
+        if not isinstance(interview_id, int) or interview_id <= 0:
+            raise ValueError("Interview ID must be a positive integer")
+        
         db = next(get_db())
         
         try:
@@ -435,8 +520,9 @@ class InterviewManager:
                             'question': response.question_text,
                             'amount': amount
                         })
-                    except:
-                        pass
+                    except (ValueError, TypeError) as e:
+                        logger.debug(f"Could not parse cost response '{response.response_text}': {e}")
+                        continue
             
             summary = {
                 'interview_id': interview_id,
@@ -498,8 +584,9 @@ class InterviewManager:
                         costs_by_category[category] = []
                     costs_by_category[category].append(amount)
                     
-                except:
-                    pass
+                except (ValueError, TypeError) as e:
+                    logger.debug(f"Could not parse cost response '{response.response_text}': {e}")
+                    continue
             
             # Calculate averages
             cost_averages = {

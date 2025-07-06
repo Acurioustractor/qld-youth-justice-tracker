@@ -394,8 +394,9 @@ class HiddenCostsCalculator:
                         'monthly_cost': calc['total_monthly_cost'],
                         'percentage_of_official': calc['family_cost_percentage']
                     })
-                except:
-                    pass
+                except (ValueError, KeyError, TypeError) as e:
+                    logger.warning(f"Error calculating costs for {town} to {center_name}: {e}")
+                    continue
         
         # Sort by monthly cost
         results.sort(key=lambda x: x['monthly_cost'], reverse=True)

@@ -42,6 +42,15 @@ class TreasuryBudgetScraper(BaseScraper):
         ]
         
         self.pdf_cache = {}
+        self._temp_files = []  # Track temporary files for cleanup
+    
+    def __del__(self):
+        """Destructor to ensure temporary files are cleaned up."""
+        try:
+            self.cleanup_all_temp_files()
+        except Exception as e:
+            # Don't raise exceptions in destructor
+            pass
         
     def find_budget_pdfs(self, fiscal_years: List[str] = None) -> List[Dict]:
         """Find all budget PDFs that might contain youth justice information."""
@@ -99,24 +108,47 @@ class TreasuryBudgetScraper(BaseScraper):
         return pdf_urls
     
     def download_pdf(self, url: str) -> Optional[str]:
-        """Download PDF to temporary file."""
+        """Download PDF to temporary file with proper resource management."""
         if url in self.pdf_cache:
-            return self.pdf_cache[url]
+            # Check if cached file still exists
+            cached_path = self.pdf_cache[url]
+            if os.path.exists(cached_path):
+                return cached_path
+            else:
+                # Remove stale cache entry
+                del self.pdf_cache[url]
+                if cached_path in self._temp_files:
+                    self._temp_files.remove(cached_path)
             
         try:
-            response = requests.get(url, timeout=30)
+            response = requests.get(url, timeout=30, stream=True)
             response.raise_for_status()
             
             # Save to temporary file
             with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as tmp_file:
-                tmp_file.write(response.content)
+                # Write in chunks to avoid loading entire file into memory
+                for chunk in response.iter_content(chunk_size=8192):
+                    if chunk:
+                        tmp_file.write(chunk)
                 filepath = tmp_file.name
                 
             self.pdf_cache[url] = filepath
+            self._temp_files.append(filepath)
+            
+            # Limit cache size to prevent memory issues
+            if len(self.pdf_cache) > 10:
+                self._cleanup_oldest_files(5)
+                
             return filepath
             
+        except requests.RequestException as e:
+            logger.error(f"Network error downloading PDF {url}: {e}")
+            return None
+        except IOError as e:
+            logger.error(f"File I/O error downloading PDF {url}: {e}")
+            return None
         except Exception as e:
-            logger.error(f"Error downloading PDF {url}: {e}")
+            logger.error(f"Unexpected error downloading PDF {url}: {e}")
             return None
     
     def extract_budget_tables_from_pdf(self, pdf_path: str, fiscal_year: str) -> List[Dict]:
@@ -304,6 +336,39 @@ class TreasuryBudgetScraper(BaseScraper):
                 
         return 'Unknown Department'
     
+    def _cleanup_oldest_files(self, keep_count: int = 5):
+        """Clean up oldest cached files to prevent memory issues."""
+        if len(self.pdf_cache) <= keep_count:
+            return
+            
+        # Sort by access time (not easily available) so we'll just clean first entries
+        urls_to_remove = list(self.pdf_cache.keys())[:-keep_count]
+        
+        for url in urls_to_remove:
+            filepath = self.pdf_cache.pop(url)
+            try:
+                if os.path.exists(filepath):
+                    os.unlink(filepath)
+                if filepath in self._temp_files:
+                    self._temp_files.remove(filepath)
+                logger.debug(f"Cleaned up cached file: {filepath}")
+            except OSError as e:
+                logger.warning(f"Could not delete cached file {filepath}: {e}")
+    
+    def cleanup_all_temp_files(self):
+        """Clean up all temporary files created by this scraper."""
+        for filepath in self._temp_files.copy():
+            try:
+                if os.path.exists(filepath):
+                    os.unlink(filepath)
+                self._temp_files.remove(filepath)
+                logger.debug(f"Cleaned up temporary file: {filepath}")
+            except OSError as e:
+                logger.warning(f"Could not delete temporary file {filepath}: {e}")
+        
+        self.pdf_cache.clear()
+        logger.info(f"Cleaned up all temporary files")
+    
     def calculate_detention_vs_community(self, allocations: List[Dict]) -> Dict:
         """Calculate detention vs community program percentages."""
         detention_total = sum(a['amount'] for a in allocations if a['category'] == 'detention')
@@ -386,11 +451,7 @@ class TreasuryBudgetScraper(BaseScraper):
         }, 'treasury_budget_scrape')
         
         # Clean up temporary files
-        for filepath in self.pdf_cache.values():
-            try:
-                os.unlink(filepath)
-            except:
-                pass
+        self.cleanup_all_temp_files()
                 
         return all_allocations
     

@@ -182,15 +182,15 @@ def test_flask_server():
         try:
             local_ip = socket.gethostbyname(hostname)
             print(f"  Local IP: {local_ip}")
-        except:
-            print("  Local IP: Unable to determine")
+        except (socket.gaierror, OSError) as e:
+            print(f"  Local IP: Unable to determine ({e})")
         
         # Test localhost resolution
         try:
             localhost_ip = socket.gethostbyname('localhost')
             print(f"  Localhost resolves to: {localhost_ip}")
-        except:
-            print("  WARNING: Cannot resolve localhost!")
+        except (socket.gaierror, OSError) as e:
+            print(f"  WARNING: Cannot resolve localhost! ({e})")
         
         # Find available port
         port = find_available_port(5000)

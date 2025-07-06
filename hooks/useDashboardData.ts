@@ -111,14 +111,27 @@ export function useDashboardData() {
     {
       refreshInterval: 30000, // Refresh every 30 seconds
       revalidateOnFocus: true,
-      revalidateOnReconnect: true
+      revalidateOnReconnect: true,
+      onError: (error: any) => {
+        console.error('Dashboard data fetch error:', error)
+      },
+      onErrorRetry: (error: any, key: string, config: any, revalidate: any, { retryCount }: { retryCount: number }) => {
+        // Don't retry on 4xx errors
+        if (error.status >= 400 && error.status < 500) return
+        
+        // Only retry up to 3 times
+        if (retryCount >= 3) return
+        
+        // Retry after 5 seconds
+        setTimeout(() => revalidate({ retryCount }), 5000)
+      }
     }
   )
 
   return {
-    data,
+    data: data || null,
     isLoading: !error && !data,
-    isError: error,
+    isError: !!error,
     mutate
   }
 }
@@ -260,19 +273,48 @@ export function useSourcesData() {
 export function useMoneyCounter() {
   const { data } = useDashboardData()
   
-  if (!data || !data.budget) return { moneyWasted: 0, kidsHelped: 0 }
+  // Comprehensive null checks
+  if (!data || 
+      !data.budget || 
+      typeof data.budget.dailyDetentionCost !== 'number' ||
+      typeof data.budget.dailyCommunityProgramCost !== 'number' ||
+      data.budget.dailyDetentionCost <= 0 ||
+      data.budget.dailyCommunityProgramCost <= 0) {
+    return { moneyWasted: 0, kidsHelped: 0 }
+  }
   
   const dailyDetentionCost = data.budget.dailyDetentionCost
   const dailyCommunityProgramCost = data.budget.dailyCommunityProgramCost
   
-  // Calculate money wasted since midnight
-  const now = new Date()
-  const midnight = new Date(now)
-  midnight.setHours(0, 0, 0, 0)
-  
-  const secondsSinceMidnight = (now.getTime() - midnight.getTime()) / 1000
-  const moneyWasted = (dailyDetentionCost / 86400) * secondsSinceMidnight
-  const kidsHelped = Math.floor(moneyWasted / dailyCommunityProgramCost)
-  
-  return { moneyWasted, kidsHelped }
+  try {
+    // Calculate money wasted since midnight
+    const now = new Date()
+    const midnight = new Date(now)
+    midnight.setHours(0, 0, 0, 0)
+    
+    const secondsSinceMidnight = (now.getTime() - midnight.getTime()) / 1000
+    
+    // Validate calculations
+    if (secondsSinceMidnight < 0 || secondsSinceMidnight > 86400) {
+      console.warn('Invalid time calculation in useMoneyCounter')
+      return { moneyWasted: 0, kidsHelped: 0 }
+    }
+    
+    const moneyWasted = (dailyDetentionCost / 86400) * secondsSinceMidnight
+    const kidsHelped = Math.floor(moneyWasted / dailyCommunityProgramCost)
+    
+    // Validate results
+    if (!isFinite(moneyWasted) || !isFinite(kidsHelped) || moneyWasted < 0 || kidsHelped < 0) {
+      console.warn('Invalid calculation results in useMoneyCounter')
+      return { moneyWasted: 0, kidsHelped: 0 }
+    }
+    
+    return { 
+      moneyWasted: Math.round(moneyWasted), 
+      kidsHelped: Math.max(0, kidsHelped) 
+    }
+  } catch (error) {
+    console.error('Error in useMoneyCounter calculation:', error)
+    return { moneyWasted: 0, kidsHelped: 0 }
+  }
 }

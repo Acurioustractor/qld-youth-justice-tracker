@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import LayoutWrapper from '@/components/LayoutWrapper'
+import ErrorBoundary from '@/components/ErrorBoundary'
 import Script from 'next/script'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -48,9 +49,11 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icon.svg" />
       </head>
       <body className={inter.className}>
-        <LayoutWrapper>
-          {children}
-        </LayoutWrapper>
+        <ErrorBoundary>
+          <LayoutWrapper>
+            {children}
+          </LayoutWrapper>
+        </ErrorBoundary>
         <Script
           id="register-sw"
           strategy="afterInteractive"
