@@ -1,5 +1,5 @@
 // Service Worker for Queensland Youth Justice Tracker
-const CACHE_NAME = 'qld-youth-justice-v1';
+const CACHE_NAME = 'qld-youth-justice-v2';
 const urlsToCache = [
   '/',
   '/dashboard',
@@ -9,7 +9,7 @@ const urlsToCache = [
 ];
 
 // Critical data to cache
-const DATA_CACHE_NAME = 'qld-youth-justice-data-v1';
+const DATA_CACHE_NAME = 'qld-youth-justice-data-v2';
 const dataUrlsToCache = [
   '/api/dashboard',
   '/api/sources'
